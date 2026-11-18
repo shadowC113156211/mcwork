@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>方塊世界 2D｜Block World</title>
+<style>
+:root{--panel:#222;--panel2:#373737;--edge:#777;--gold:#f7d47a;--ink:#f3f3f3}
+*{box-sizing:border-box}body{margin:0;background:#111;color:var(--ink);font-family:system-ui,-apple-system,"Noto Sans TC",sans-serif;overflow:hidden;user-select:none}button{font:inherit;color:#fff;background:#444;border:2px solid #888;box-shadow:inset 1px 1px #aaa,inset -1px -1px #222;padding:6px 10px;cursor:pointer}button:hover{background:#5a5a5a}#app{height:100dvh;display:flex;flex-direction:column;background:#151515}header{height:54px;flex:none;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:5px 12px;background:#252525;border-bottom:2px solid #111;z-index:2}.logo{font-weight:900;white-space:nowrap}.logo span{color:var(--gold)}.hud{display:flex;align-items:center;gap:7px;font-size:13px}.pill{background:#353535;border:1px solid #555;padding:4px 8px;border-radius:4px;white-space:nowrap}.meter{display:inline-block;width:52px;height:8px;margin-left:4px;background:#131313;vertical-align:middle}.meter i{display:block;height:100%;background:#d84c4c;width:100%}#foodBar{background:#d5a338}#headBtns{display:flex;gap:5px;white-space:nowrap}#stage{position:relative;flex:1;min-height:0;background:#111}canvas{display:block;width:100%;height:100%;image-rendering:pixelated;cursor:crosshair;touch-action:none}#hint{position:absolute;left:12px;top:12px;background:#101820d9;border:1px solid #fff4;padding:9px 11px;border-radius:5px;font-size:12px;line-height:1.6;pointer-events:none;max-width:290px;text-shadow:1px 1px #000}#toast{position:absolute;left:50%;top:16px;transform:translateX(-50%);background:#171717eF;border:1px solid #fff6;padding:8px 14px;opacity:0;pointer-events:none;z-index:8;white-space:nowrap;transition:opacity .2s}#bottom{height:82px;flex:none;display:flex;align-items:center;justify-content:center;gap:12px;background:#252525;border-top:2px solid #111;z-index:2}#hotbar{display:flex;gap:4px;padding:5px;background:#555;border:2px solid #aaa;box-shadow:inset 2px 2px #333,inset -2px -2px #888}.slot{position:relative;width:54px;height:54px;flex:none;display:flex;align-items:center;justify-content:center;background:#383838;border:2px solid #777;box-shadow:inset 2px 2px #222,inset -2px -2px #555;cursor:pointer}.slot.active{outline:3px solid #fff;outline-offset:1px;z-index:1}.slot .icon{font-size:27px;line-height:1;text-shadow:2px 2px #222}.slot .count{position:absolute;right:2px;bottom:0;font-weight:900;font-size:13px;text-shadow:2px 2px #111}.slot .num{position:absolute;left:3px;top:1px;color:#ccc;font-size:9px;text-shadow:1px 1px #111}.slot.empty .icon,.slot.empty .count{display:none}#mobile{display:none;gap:5px}#mobile button{min-width:42px;min-height:44px;font-size:18px;padding:4px}
+#inventoryPanel{display:none;position:absolute;z-index:6;left:50%;top:50%;transform:translate(-50%,-50%);width:min(570px,96vw);max-height:92%;overflow:auto;background:#c6c6c6;color:#242424;border:4px solid #555;box-shadow:0 12px 50px #000c;padding:15px}.open{display:block!important}.invTitle{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;font-weight:800}.invLayout{display:grid;grid-template-columns:1fr 1.1fr;gap:18px;align-items:start}.crafting h3,.inventoryGridTitle{font-size:14px;margin:0 0 6px}.craftLine{display:flex;align-items:center;gap:8px}.craftGrid{display:grid;gap:4px;padding:5px;background:#9a9a9a;border:2px solid #777}.craftGrid.two{grid-template-columns:repeat(2,48px)}.craftGrid.three{grid-template-columns:repeat(3,42px)}.craftCell{width:46px;height:46px;background:#777;border:2px solid #aaa;box-shadow:inset 2px 2px #444,inset -2px -2px #999;display:grid;place-items:center;cursor:pointer}.craftGrid.three .craftCell{width:40px;height:40px}.craftCell .icon{font-size:24px}.arrow{font-size:25px;color:#555}.resultCell{width:54px;height:54px;background:#777;border:2px solid #aaa;box-shadow:inset 2px 2px #444,inset -2px -2px #999;display:grid;place-items:center;cursor:pointer}.resultCell .icon{font-size:29px}.recipeHint{font-size:11px;line-height:1.5;color:#333;margin-top:7px;max-width:250px}.grid36{display:grid;grid-template-columns:repeat(9,1fr);gap:3px}.grid36 .slot{width:100%;height:auto;aspect-ratio:1}.grid36 .slot .icon{font-size:24px}.grid36 .slot .count{font-size:12px}.invFoot{font-size:11px;color:#444;margin-top:8px}.cursorBadge{min-height:20px;font-size:12px;margin:3px 0;color:#333}.tableBadge{padding:5px 7px;background:#aaa;border:1px solid #777;font-size:11px;margin-top:8px}.splitModeBtn{font-size:11px;padding:4px 7px;color:#222;background:#aaa;border:2px solid #777;box-shadow:inset 1px 1px #ddd,inset -1px -1px #666}.splitModeBtn.on{background:#d1c18a;border-color:#80651a}.recipeBook{display:grid;gap:4px;margin-top:8px;max-height:170px;overflow:auto}.recipeCard{display:flex;align-items:center;gap:6px;width:100%;text-align:left;color:#222;background:#b2b2b2;border:1px solid #777;box-shadow:inset 1px 1px #ddd,inset -1px -1px #777;padding:4px;font-size:10px}.recipeCard:hover{background:#d5d5d5}.recipeCard:disabled{opacity:.58;cursor:not-allowed}.miniRecipe{display:grid;grid-template-columns:repeat(3,13px);gap:1px;flex:none;background:#777;padding:2px}.miniRecipe.two{grid-template-columns:repeat(2,13px)}.miniRecipe i{width:13px;height:13px;display:grid;place-items:center;background:#aaa;font-style:normal;font-size:9px}.craftCell,.resultCell{position:relative}.craftCell .count,.resultCell .count{position:absolute;right:2px;bottom:0;font-weight:900;font-size:11px;color:#fff;text-shadow:1px 1px #111}.recipeText{flex:1}.recipeText b{display:block;font-size:10px}.recipeText small{display:block;color:#444;margin-top:1px}.craftCell,.slot,.resultCell{touch-action:manipulation}
+#startScreen{position:fixed;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;padding:18px;background:linear-gradient(#101820e8,#090b10f2),repeating-linear-gradient(0deg,#28313a 0 31px,#1d252d 32px);backdrop-filter:blur(3px)}.startCard{width:min(700px,96vw);max-height:94dvh;overflow:auto;background:#c6c6c6;color:#222;border:5px solid #777;box-shadow:0 16px 70px #000;padding:clamp(18px,4vw,34px)}.startCard h1{margin:0 0 5px;font-size:clamp(23px,5vw,36px);color:#252525}.startLead{margin:0 0 20px;color:#444}.choiceGroup{margin:17px 0}.choiceGroup h2{font-size:16px;margin:0 0 8px}.choiceRow{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.choice{min-height:74px;text-align:left;color:#262626;background:#aaa;border:3px solid #777;box-shadow:inset 2px 2px #ddd,inset -2px -2px #666;padding:10px 12px}.choice strong{display:block;font-size:16px}.choice small{display:block;margin-top:4px;color:#444;line-height:1.35}.choice.selected{border-color:#f0ca5b;background:#d1c18a;box-shadow:inset 2px 2px #f6e7b2,inset -2px -2px #826c37,0 0 0 2px #493b1b}.startActions{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}.startActions button{min-height:44px}.primaryStart{background:#557c3c;border-color:#d7e6b0;font-weight:800;flex:1}.continueStart{background:#426481;border-color:#c4ddec;flex:1}.startNote{font-size:11px;color:#555;margin:12px 0 0}@media(max-width:520px){.choiceRow{grid-template-columns:1fr}.choice{min-height:63px}.startCard{padding:18px}}
+@media(max-width:760px){header{height:auto;min-height:54px;padding:5px 7px;flex-wrap:wrap}.logo{font-size:12px}.hud{gap:3px;font-size:10px}.pill{padding:3px 5px}.meter{width:32px}#headBtns button{font-size:11px;padding:5px}#hint{font-size:10px;max-width:205px;left:7px;top:7px}#bottom{height:76px;gap:5px}.slot{width:39px;height:45px}#hotbar{gap:2px;padding:3px}#mobile{display:flex}.invLayout{grid-template-columns:1fr;gap:12px}.grid36 .slot{min-height:31px}.grid36 .slot .icon{font-size:20px}.craftGrid.two{grid-template-columns:repeat(2,42px)}.craftCell{width:40px;height:40px}}
+</style>
+</head>
+<body>
+<div id="app">
+<section id="startScreen" aria-label="遊戲開始設定">
+ <div class="startCard">
+  <h1>⛏️ 方塊世界 2D</h1><p class="startLead">選擇你的遊玩方式與世界地形</p>
+  <div class="choiceGroup"><h2>遊玩方式</h2><div class="choiceRow">
+   <button class="choice selected" data-mode="survival"><strong>生存模式</strong><small>收集資源、製作工具，留意生命與飢餓，夜晚有怪物出沒。</small></button>
+   <button class="choice" data-mode="creative"><strong>創造模式</strong><small>取得方塊與工具、自由建造；不消耗方塊、不會餓或受傷，並可飛行。</small></button>
+  </div></div>
+  <div class="choiceGroup"><h2>世界地形</h2><div class="choiceRow">
+   <button class="choice selected" data-terrain="random"><strong>原始隨機</strong><small>起伏地表、樹木、洞穴與礦物，探索自然生成的世界。</small></button>
+   <button class="choice" data-terrain="flat"><strong>平坦世界</strong><small>平整草地向外延伸，適合建造；地下仍有泥土、石頭與礦物。</small></button>
+  </div></div>
+  <div class="startActions"><button id="startNewBtn" class="primaryStart">開始新世界</button><button id="continueBtn" class="continueStart" hidden>繼續上次遊戲</button></div>
+  <p class="startNote">遊戲進度只儲存在目前瀏覽器。開始新世界會依照上方選項重新生成地圖。</p>
+ </div>
+</section>
+<header>
+ <div class="logo">⛏️ <span>方塊世界 2D</span></div>
+ <div class="hud"><span class="pill" id="modeBadge">生存</span><span class="pill" id="hpPill">❤ <b id="hp">100</b></span><span class="pill">🍗 <b id="food">100</b><i class="meter"><i id="foodBar"></i></i></span><span class="pill">📍 <b id="coords">0,0</b></span><span class="pill">🕒 <b id="clock">06:00</b></span></div>
+ <div id="headBtns"><button id="invBtn">🎒 背包 (E)</button><button id="saveBtn">💾</button><button id="resetBtn">↻</button></div>
+</header>
+<div id="stage">
+ <canvas id="game"></canvas>
+ <div id="hint"><b>⛏️ 方塊世界</b><br>WASD／方向鍵移動　Space 跳躍<br>左鍵按住挖掘／持劍揮砍　右鍵放置<br>1～9／滾輪切換　E 背包　Q 丟棄<br>放置工作台後右鍵開啟 3×3 合成</div>
+ <div id="toast"></div>
+ <section id="inventoryPanel">
+  <div class="invTitle"><span id="invTitleText">背包</span><button id="closeInv">✕</button></div>
+  <div class="invLayout">
+   <div class="crafting"><h3 id="craftTitle">個人合成 2×2</h3><div class="craftLine"><div id="craftGrid" class="craftGrid two"></div><span class="arrow">➜</span><div id="craftResult" class="resultCell" title="合成結果"></div></div><div class="recipeHint" id="recipeHint">點選配方可自動放入材料；也可自行排列。</div><div id="recipeBook" class="recipeBook" aria-label="可用合成配方"></div><div class="tableBadge" id="tableBadge">工作台未開啟：先合成並放置工作台，再右鍵點擊它。</div></div>
+   <div><div class="inventoryGridTitle">物品欄</div><div id="inventoryGrid" class="grid36"></div></div>
+  </div>
+  <div class="cursorBadge" id="cursorBadge">手上沒有拿取物品</div><button type="button" id="splitModeBtn" class="splitModeBtn" aria-pressed="false">拆分放置：關（右鍵也可拆分）</button>
+  <div class="invFoot">左鍵拿起／放下整堆；右鍵拿一半、放 1 個。觸控可開啟「拆分放置」再點格子；點配方卡可自動放料，Shift + 點合成結果可快速連續製作。</div>
+ </section>
+</div>
+<div id="bottom">
+ <div id="mobile"><button id="leftBtn">◀</button><button id="jumpBtn">⬆</button><button id="rightBtn">▶</button></div>
+ <div id="hotbar"></div>
+</div>
+</div>
+<script>
+(()=>{
+'use strict';
+const canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
+const TILE=32,WORLD_W=180,WORLD_H=52,SLOT_COUNT=36,HOTBAR_START=27;
+const items={
+ 1:{name:'草地',icon:'🟩',solid:true,block:true},2:{name:'泥土',icon:'🟫',solid:true,block:true},3:{name:'石頭',icon:'🪨',solid:true,block:true},4:{name:'木頭',icon:'🪵',solid:true,block:true},5:{name:'樹葉',icon:'🍃',solid:true,block:true},6:{name:'煤礦',icon:'⚫',solid:true,block:true},7:{name:'木板',icon:'🟫',solid:true,block:true},8:{name:'火把',icon:'🔦',solid:false,block:true},9:{name:'鐵礦',icon:'🟠',solid:true,block:true},10:{name:'木棒',icon:'🥢'},11:{name:'蘋果',icon:'🍎'},12:{name:'木劍',icon:'🗡️'},13:{name:'工作台',icon:'🧰',solid:true,block:true},14:{name:'木鎬',icon:'⛏️'},15:{name:'石鎬',icon:'⚒️'},16:{name:'鐵劍',icon:'⚔️'},17:{name:'鐵鎬',icon:'⛏️'}
+};
+let world=Array.from({length:WORLD_H},()=>Array(WORLD_W).fill(0));
+let inv=Array.from({length:SLOT_COUNT},()=>null),craftGrid=Array(9).fill(null),cursorStack=null;
+let selected=0,craftMode=2,workbenchOpen=false,worldTime=45,camX=0,camY=0,last=0,toastLeft=0,splitMode=false;
+let gameMode="survival",terrainType="random",gameStarted=false;
+const player={x:8*TILE,y:0,w:21,h:29,vx:0,vy:0,onGround:false,facing:1,hp:100,food:100,swing:0};
+const keys={},mouse={x:0,y:0,down:false,timer:0,target:null};let mobs=[],drops=[],mobTimer=0,foodTimer=0,hurtTimer=0;
+const recipes=[
+ {name:'木頭製成木板',mode:2,grid:[4,0,0,0],out:7,n:4},
+ {name:'兩片木板合成木棒',mode:2,grid:[7,0,7,0],out:10,n:4},
+ {name:'四片木板合成工作台',mode:2,grid:[7,7,7,7],out:13,n:1},
+ {name:'煤炭與木棒合成火把',mode:2,grid:[6,0,10,0],out:8,n:4},
+ {name:'木板與木棒合成木鎬',mode:3,grid:[7,7,7,0,10,0,0,10,0],out:14,n:1},
+ {name:'石頭與木棒合成石鎬',mode:3,grid:[3,3,3,0,10,0,0,10,0],out:15,n:1},
+ {name:'木板與木棒合成木劍',mode:3,grid:[0,7,0,0,7,0,0,10,0],out:12,n:1},
+ {name:'鐵錠形狀的鐵礦與木棒合成鐵劍',mode:3,grid:[0,9,0,0,9,0,0,10,0],out:16,n:1},
+ {name:'鐵礦與木棒合成鐵鎬',mode:3,grid:[9,9,9,0,10,0,0,10,0],out:17,n:1}
+];
+const $=id=>document.getElementById(id);
+function notify(s){const t=$('toast');t.textContent=s;t.style.opacity=1;toastLeft=2}
+function terrainHeight(x){if(terrainType==="flat")return 25;return Math.floor(24+Math.sin(x*.12)*2.7+Math.sin(x*.035)*4+Math.sin(x*.43)*.8)}
+function generateWorld(){
+ world=Array.from({length:WORLD_H},()=>Array(WORLD_W).fill(0));
+ for(let x=0;x<WORLD_W;x++){
+  const top=terrainHeight(x);
+  for(let y=top;y<WORLD_H;y++)world[y][x]=y===top?1:y<top+4?2:3;
+  if(terrainType==="random"){
+   for(let y=top+5;y<WORLD_H-2;y++){
+    if(y>top+8&&Math.sin(x*.31+y*.47)+Math.sin(x*.12-y*.22)>1.62)world[y][x]=0;
+    if(y>top+5&&(x*17+y*31)%97===0)world[y][x]=6;
+    if(y>top+13&&(x*29+y*13)%173===0)world[y][x]=9;
+   }
+  }else{
+   for(let y=top+5;y<WORLD_H-2;y++){
+    if(y>top+6&&(x*17+y*31)%67===0)world[y][x]=6;
+    if(y>top+12&&(x*29+y*13)%121===0)world[y][x]=9;
+   }
+  }
+ }
+ if(terrainType==="random")for(let x=15;x<WORLD_W-4;x++)if(Math.random()<.09&&Math.abs(terrainHeight(x)-terrainHeight(x+1))<2){let y=terrainHeight(x)-1;for(let j=1;j<=4;j++)if(y-j>=0)world[y-j][x]=4;for(let dy=-5;dy<=-3;dy++)for(let dx=-2;dx<=2;dx++){let xx=x+dx,yy=y+dy;if(xx>=0&&xx<WORLD_W&&yy>=0&&Math.abs(dx)+Math.abs(dy+4)<5&&world[yy][xx]===0)world[yy][xx]=5}}
+ player.x=8*TILE;player.y=terrainHeight(8)*TILE-player.h-1;player.vx=player.vy=0;player.hp=100;player.food=100;camX=camY=0;worldTime=45;mobs=[];drops=[];foodTimer=hurtTimer=mobTimer=0;
+}
+function makeCreativeInventory(){const a=Array.from({length:SLOT_COUNT},()=>null);const bar=[1,2,3,4,5,8,7,13,6];for(let i=0;i<bar.length;i++)a[HOTBAR_START+i]={id:bar[i],n:64};for(let id=9;id<=17;id++)a[id-1]={id,n:[10,11,12,14,15,16,17].includes(id)?1:64};return a}
+function resize(){const r=canvas.getBoundingClientRect(),d=Math.min(devicePixelRatio||1,2);canvas.width=Math.floor(r.width*d);canvas.height=Math.floor(r.height*d);ctx.setTransform(d,0,0,d,0,0)}new ResizeObserver(resize).observe(canvas);resize();
+function countItem(id){let n=0;for(const s of inv)if(s&&s.id===id)n+=s.n;if(cursorStack?.id===id)n+=cursorStack.n;return n}
+function addItem(id,n=1){let left=n;for(const s of inv)if(s&&s.id===id&&s.n<64){const put=Math.min(left,64-s.n);s.n+=put;left-=put;if(!left)break}while(left>0){const i=inv.findIndex(s=>!s);if(i<0)break;const put=Math.min(64,left);inv[i]={id,n:put};left-=put}if(left)notify('背包已滿，部分物品沒有拾取');renderHotbar();if($('inventoryPanel').classList.contains('open'))renderInventory();return n-left}
+function removeFromGrid(grid,id,n=1){for(let i=0;i<grid.length&&n>0;i++)if(grid[i]?.id===id){const take=Math.min(n,grid[i].n);grid[i].n-=take;n-=take;if(grid[i].n<=0)grid[i]=null}return n===0}
+function removeItem(id,n=1){let left=n;for(const s of inv)if(s&&s.id===id&&left){const take=Math.min(s.n,left);s.n-=take;left-=take}inv=inv.map(s=>s&&s.n>0?s:null);renderHotbar();return left===0}
+function itemStack(id,n=1){return {id,n}}
+function canReceive(id,n){if(!cursorStack)return true;if(cursorStack.id===id&&cursorStack.n+n<=64)return true;return inv.some(s=>!s||s.id===id&&s.n+n<=64)}
+function receiveItem(id,n){if(!cursorStack){cursorStack={id,n};return true}if(cursorStack.id===id&&cursorStack.n+n<=64){cursorStack.n+=n;return true}return addItem(id,n)===n}
+function slotHTML(stack,num=''){const el=document.createElement('div');el.className='slot'+(!stack?' empty':'');if(stack&&items[stack.id])el.innerHTML=`<span class="icon">${items[stack.id].icon}</span><span class="count">${stack.n>1?stack.n:''}</span>`;if(num)el.innerHTML+=`<span class="num">${num}</span>`;return el}
+function renderHotbar(){const bar=$('hotbar');bar.innerHTML='';for(let j=0;j<9;j++){const i=HOTBAR_START+j,el=slotHTML(inv[i],String(j+1));if(j===selected)el.classList.add('active');el.title=inv[i]?items[inv[i].id].name:'空欄';el.onclick=()=>{selected=j;renderHotbar()};bar.appendChild(el)}}
+function activeStack(){return inv[HOTBAR_START+selected]}
+function recipeLayout(r,mirror=false,ox=0,oy=0){const size=r.mode,pattern=r.grid,occupied=[];for(let y=0;y<size;y++)for(let x=0;x<size;x++)if(pattern[y*size+x])occupied.push([x,y,pattern[y*size+x]]);if(!occupied.length)return null;const minX=Math.min(...occupied.map(v=>v[0])),maxX=Math.max(...occupied.map(v=>v[0])),minY=Math.min(...occupied.map(v=>v[1])),maxY=Math.max(...occupied.map(v=>v[1]));if(ox+maxX-minX>=size||oy+maxY-minY>=size)return null;const out=Array(9).fill(0);for(const [x,y,id] of occupied){const nx=mirror?maxX-(x-minX)+minX:x;out[(y-minY+oy)*size+(nx-minX+ox)]=id}return out}
+function recipeMatch(){for(const r of recipes){if(r.mode!==craftMode)continue;const size=craftMode;for(const mirror of [false,true])for(let oy=0;oy<size;oy++)for(let ox=0;ox<size;ox++){const expected=recipeLayout(r,mirror,ox,oy);if(!expected)continue;let ok=true;for(let i=0;i<9;i++)if((expected[i]||0)!==(craftGrid[i]?.id||0)){ok=false;break}if(ok)return r}}return null}
+function updateRecipeResult(){
+ const cell=$("craftResult"),r=recipeMatch();
+ cell.innerHTML="";
+ if(r){const icon=document.createElement("span");icon.className="icon";icon.textContent=items[r.out].icon;cell.appendChild(icon);if(r.n>1){const n=document.createElement("span");n.className="count";n.textContent=r.n;cell.appendChild(n)}cell.title=r.name;cell.style.opacity="1";$("recipeHint").textContent=`配方：${r.name}　輸出 ${items[r.out].name} ×${r.n}`}
+ else{cell.title="沒有可合成的配方";cell.style.opacity=".45";$("recipeHint").textContent="點選下方配方可按背包數量預放多次材料；點結果製作 1 次，Shift + 點結果可連續製作。"}
+ const badge=$("cursorBadge");badge.textContent=cursorStack?`手上拿著：${items[cursorStack.id].name} ×${cursorStack.n}　（左鍵放整堆／右鍵放 1 個）`:"手上沒有拿取物品";
+ renderRecipeBook();
+}
+function countInventoryItem(id){return inv.reduce((n,s)=>n+(s?.id===id?s.n:0),0)}
+function recipeRequirements(r){const req={};for(const id of r.grid)if(id)req[id]=(req[id]||0)+1;return req}
+function renderRecipeBook(){const book=$("recipeBook");if(!book)return;book.innerHTML="";for(const r of recipes.filter(x=>x.mode===craftMode)){const b=document.createElement("button");b.type="button";b.className="recipeCard";b.title="點擊後從背包自動放入材料";const mini=document.createElement("span");mini.className="miniRecipe "+(r.mode===2?"two":"three");const preview=recipeLayout(r)||[];for(let i=0;i<r.mode*r.mode;i++){const id=preview[i]||0,c=document.createElement("i");c.textContent=id?items[id].icon:"";mini.appendChild(c)}const text=document.createElement("span");text.className="recipeText";text.innerHTML=`<b>${items[r.out].name} ×${r.n}</b><small>${r.name}</small>`;b.append(mini,text);b.onclick=()=>loadRecipe(r);book.appendChild(b)}}
+function loadRecipe(r){if(r.mode!==craftMode)return;const req=recipeRequirements(r);for(const [id,n] of Object.entries(req)){if(countInventoryItem(Number(id))<n){notify(`材料不足：${items[id].name} 需要 ${n} 個（先放回手上物品）`);return}}returnCraftGrid();let batches=64;for(const [id,n] of Object.entries(req))batches=Math.min(batches,Math.floor(countInventoryItem(Number(id))/n));if(batches<1){notify('材料不足，無法放入配方');return}craftGrid=Array(9).fill(null);const layout=recipeLayout(r);for(const [id,n] of Object.entries(req))if(!removeInventoryItems(Number(id),n*batches)){notify(`放料失敗：${items[id].name}`);return}for(let i=0;i<9;i++)if(layout[i])craftGrid[i]={id:layout[i],n:batches};renderHotbar();renderInventory();notify(`已放入 ${batches} 次配方材料：${r.name}`)}
+function removeInventoryItems(id,n){let left=n;for(let i=0;i<inv.length&&left;i++)if(inv[i]?.id===id){const take=Math.min(inv[i].n,left);inv[i].n-=take;left-=take;if(inv[i].n<=0)inv[i]=null}return left===0}
+function setCraftMode(mode){
+ craftMode=mode;
+ $("craftTitle").textContent=mode===2?"個人合成 2×2":"工作台合成 3×3";
+ $("invTitleText").textContent=mode===2?"背包":"工作台";
+ $("tableBadge").textContent=mode===2?"工作台未開啟：先合成並放置工作台，再右鍵點擊它。":"工作台已開啟：使用 3×3 合成格。";
+ const grid=$("craftGrid");grid.className="craftGrid "+(mode===2?"two":"three");grid.innerHTML="";
+ for(let i=0;i<mode*mode;i++){
+  const el=document.createElement("div");el.className="craftCell";const stack=craftGrid[i];
+  if(stack){const icon=document.createElement("span");icon.className="icon";icon.textContent=items[stack.id].icon;el.appendChild(icon);if(stack.n>1){const n=document.createElement("span");n.className="count";n.textContent=stack.n;el.appendChild(n)}}
+  el.onclick=()=>clickCraftCell(i,splitMode?2:0);el.oncontextmenu=e=>{e.preventDefault();clickCraftCell(i,2)};grid.appendChild(el)
+ }
+ updateRecipeResult()
+}
+function renderInventory(){const grid=$('inventoryGrid');grid.innerHTML='';for(let i=0;i<SLOT_COUNT;i++){const el=slotHTML(inv[i]);el.title=inv[i]?`${items[inv[i].id].name} ×${inv[i].n}`:'空欄';el.onclick=e=>{if(e.shiftKey){quickMove(i);return}clickInvSlot(i,splitMode?2:0)};el.oncontextmenu=e=>{e.preventDefault();clickInvSlot(i,2)};grid.appendChild(el)}setCraftMode(craftMode)}
+function pickupClick(stackRef,setStack,button=0){if(button===2){if(!cursorStack){if(stackRef){const take=Math.ceil(stackRef.n/2);cursorStack={id:stackRef.id,n:take};stackRef.n-=take;if(stackRef.n<=0)setStack(null)}}else if(!stackRef){setStack({id:cursorStack.id,n:1});cursorStack.n--;if(cursorStack.n<=0)cursorStack=null}else if(stackRef.id===cursorStack.id&&stackRef.n<64){stackRef.n++;cursorStack.n--;if(cursorStack.n<=0)cursorStack=null}return}if(!cursorStack){if(stackRef){cursorStack={...stackRef};setStack(null)}}else if(!stackRef){setStack({...cursorStack});cursorStack=null}else if(stackRef.id===cursorStack.id&&stackRef.n<64){const move=Math.min(cursorStack.n,64-stackRef.n);stackRef.n+=move;cursorStack.n-=move;if(cursorStack.n<=0)cursorStack=null}else{const temp={...stackRef};setStack({...cursorStack});cursorStack=temp}}
+function clickInvSlot(i,button=0){pickupClick(inv[i],v=>inv[i]=v,button);renderHotbar();renderInventory()}
+function clickCraftCell(i,button=0){pickupClick(craftGrid[i],v=>craftGrid[i]=v,button);setCraftMode(craftMode)}
+function quickMove(i){const s=inv[i];if(!s)return;const range=i>=HOTBAR_START?[0,HOTBAR_START]:[HOTBAR_START,SLOT_COUNT];let left=s.n;for(let j=range[0];j<range[1]&&left;j++)if(inv[j]?.id===s.id&&inv[j].n<64){const m=Math.min(left,64-inv[j].n);inv[j].n+=m;left-=m}for(let j=range[0];j<range[1]&&left;j++)if(!inv[j]){const m=Math.min(left,64);inv[j]={id:s.id,n:m};left-=m}if(left)s.n=left;else inv[i]=null;renderHotbar();renderInventory()}
+function craftOne(silent=false){const r=recipeMatch();if(!r||!canReceive(r.out,r.n))return false;for(let i=0;i<craftMode*craftMode;i++)if(craftGrid[i])craftGrid[i].n--;craftGrid=craftGrid.map(s=>s&&s.n>0?s:null);receiveItem(r.out,r.n);renderHotbar();renderInventory();if(!silent)notify(`合成完成：${items[r.out].name} ×${r.n}`);return true}
+$('craftResult').onclick=e=>{if(!e.shiftKey){craftOne();return}let made=0;for(let i=0;i<64&&craftOne(true);i++)made++;if(made)notify(`快速合成完成：${made} 次`);else notify('無法繼續合成：請檢查材料或背包空間')};$('craftResult').oncontextmenu=e=>{e.preventDefault();craftOne()};
+function openInventory(mode=2){setCraftMode(mode);$('inventoryPanel').classList.add('open');renderInventory()}
+function storeStackRaw(stack){let left=stack.n;for(const s of inv)if(s&&s.id===stack.id&&s.n<64&&left){const m=Math.min(left,64-s.n);s.n+=m;left-=m}for(let i=0;i<inv.length&&left;i++)if(!inv[i]){const m=Math.min(64,left);inv[i]={id:stack.id,n:m};left-=m}if(left)drops.push({id:stack.id,n:left,x:player.x+player.w/2,y:player.y+6,vx:player.facing*35,vy:-55,got:false,age:.35})}
+function returnCraftGrid(){for(let i=0;i<craftGrid.length;i++)if(craftGrid[i]){storeStackRaw(craftGrid[i]);craftGrid[i]=null}}
+function closeInventory(){if(cursorStack){notify('先把手上的物品放回背包或合成格');return}returnCraftGrid();$('inventoryPanel').classList.remove('open');setCraftMode(2);renderHotbar()}
+$('invBtn').onclick=()=>openInventory(2);$('closeInv').onclick=closeInventory;$('splitModeBtn').onclick=()=>{splitMode=!splitMode;$('splitModeBtn').classList.toggle('on',splitMode);$('splitModeBtn').setAttribute('aria-pressed',String(splitMode));$('splitModeBtn').textContent=`拆分放置：${splitMode?'開（點擊取半／放 1 個）':'關（右鍵也可拆分）'}`};$('inventoryPanel').addEventListener('contextmenu',e=>e.preventDefault());
+function tileAt(x,y){if(x<0||x>=WORLD_W||y>=WORLD_H)return 3;if(y<0)return 0;return world[y][x]||0}
+function solidAt(x,y){return !!items[tileAt(x,y)]?.solid}
+function rectHits(x,y,w,h){const x1=Math.floor(x/TILE),x2=Math.floor((x+w-1)/TILE),y1=Math.floor(y/TILE),y2=Math.floor((y+h-1)/TILE);for(let yy=y1;yy<=y2;yy++)for(let xx=x1;xx<=x2;xx++)if(solidAt(xx,yy))return true;return false}
+function pickaxeLevel(){return countItem(17)>0?3:countItem(15)>0?2:countItem(14)>0?1:0}
+function update(dt){worldTime+=dt;const phase=(worldTime%180)/180,dayLight=Math.max(0,(Math.sin(phase*Math.PI*2-Math.PI/2)+1)/2),night=1-dayLight;$('clock').textContent=`${String(Math.floor(phase*24)).padStart(2,'0')}:${String(Math.floor(phase*1440%60)).padStart(2,'0')}`;
+ if(gameMode==="survival"){foodTimer+=dt;if(foodTimer>2){player.food=Math.max(0,player.food-.025*foodTimer);foodTimer=0}if(player.food<=0){hurtTimer+=dt;if(hurtTimer>3){player.hp=Math.max(0,player.hp-1);hurtTimer=0}}else if(player.food>75&&player.hp<100){hurtTimer+=dt;if(hurtTimer>9){player.hp=Math.min(100,player.hp+1);hurtTimer=0}}}
+ const left=keys.KeyA||keys.ArrowLeft,right=keys.KeyD||keys.ArrowRight;player.vx=((right?1:0)-(left?1:0))*155;if(player.vx)player.facing=Math.sign(player.vx);player.x+=player.vx*dt;if(rectHits(player.x,player.y,player.w,player.h))player.x-=player.vx*dt;
+ if(gameMode==="creative"){
+  const up=keys.Space||keys.ArrowUp||keys.KeyW,down=keys.ShiftLeft||keys.ShiftRight||keys.ArrowDown||keys.KeyS;player.vy=(down?155:0)-(up?155:0);const dy=player.vy*dt;player.y+=dy;if(rectHits(player.x,player.y,player.w,player.h))player.y-=dy;player.y=Math.max(0,Math.min(WORLD_H*TILE-player.h,player.y));player.onGround=false;
+ }else{
+  player.vy=Math.min(520,player.vy+850*dt);const dy=player.vy*dt;player.y+=dy;player.onGround=false;if(rectHits(player.x,player.y,player.w,player.h)){if(dy>0)player.onGround=true;player.y-=dy;const step=Math.sign(dy)||1;for(let i=0;i<48;i++){if(rectHits(player.x,player.y+step,player.w,player.h))break;player.y+=step}player.vy=0}if(player.y>WORLD_H*TILE){player.y=terrainHeight(Math.floor(player.x/TILE))*TILE-player.h-1;player.hp-=10;player.vy=0;notify('跌落受傷！')}
+ }
+ if(player.hp<=0){player.hp=100;player.food=Math.max(40,player.food);player.x=8*TILE;player.y=terrainHeight(8)*TILE-player.h-1;player.vx=player.vy=0;mobs=[];notify('你倒下了，在出生點重生。')}
+ camX=Math.max(0,Math.min(WORLD_W*TILE-canvas.clientWidth,player.x-canvas.clientWidth*.43));camY=Math.max(0,Math.min(WORLD_H*TILE-canvas.clientHeight,player.y-canvas.clientHeight*.52));$('coords').textContent=`${Math.floor(player.x/TILE)}, ${Math.floor(player.y/TILE)}`;$('hp').textContent=Math.ceil(player.hp);$('food').textContent=Math.ceil(player.food);$('foodBar').style.width=player.food+'%';
+ mobTimer-=dt;if(gameMode==="survival"&&night>.68&&mobTimer<=0&&mobs.length<5){const dir=Math.random()<.5?-1:1,mx=Math.max(3,Math.min(WORLD_W-4,Math.floor(player.x/TILE)+dir*(8+Math.floor(Math.random()*12))));mobs.push({x:mx*TILE,y:(terrainHeight(mx)-1)*TILE,w:25,h:22,vy:0,hit:0});mobTimer=5+Math.random()*5}
+ for(const m of mobs){m.hit=Math.max(0,m.hit-dt);const vx=Math.sign(player.x-m.x)*42;m.x+=vx*dt;if(rectHits(m.x,m.y,m.w,m.h))m.x-=vx*dt;m.vy=Math.min(430,m.vy+850*dt);const my=m.vy*dt;m.y+=my;if(rectHits(m.x,m.y,m.w,m.h)){m.y-=my;m.vy=0;for(let i=0;i<4&&!rectHits(m.x,m.y+1,m.w,m.h);i++)m.y++}if(gameMode==="survival"&&Math.abs(m.x-player.x)<28&&Math.abs(m.y-player.y)<26&&m.hit<=0){player.hp=Math.max(0,player.hp-8);m.hit=1;notify('史萊姆撞到你！生命值 -8')}}mobs=mobs.filter(m=>m.x>-TILE&&m.x<(WORLD_W+1)*TILE);
+ for(const d of drops){d.age=(d.age||0)+dt;d.x+=d.vx*dt;d.vx*=Math.pow(.1,dt);d.vy=Math.min(380,d.vy+600*dt);d.y+=d.vy*dt;if(rectHits(d.x,d.y,14,14)){d.y-=d.vy*dt;d.vy=0}if(d.age>.3&&Math.hypot(d.x-player.x,d.y-player.y)<32){d.got=addItem(d.id,d.n)===d.n}}drops=drops.filter(d=>!d.got);
+ player.swing=Math.max(0,player.swing-dt);if(mouse.down){mouse.timer-=dt;if(mouse.timer<=0){mineTick(dt);mouse.timer=.045}}if(toastLeft>0){toastLeft-=dt;if(toastLeft<=0)$('toast').style.opacity=0}
+}
+function mineTick(dt){const tx=Math.floor((mouse.x+camX)/TILE),ty=Math.floor((mouse.y+camY)/TILE);if(tx<0||tx>=WORLD_W||ty<0||ty>=WORLD_H||!inReach(tx,ty)){mouse.target=null;return}const id=tileAt(tx,ty);if(!id){mouse.target=null;return}if(!mouse.target||mouse.target.x!==tx||mouse.target.y!==ty)mouse.target={x:tx,y:ty,t:0};let need=id===3||id===6||id===9?Math.max(.2,1.25-pickaxeLevel()*.3):id===4?.65:.36;mouse.target.t+=dt;if(gameMode==="creative")mouse.target.t=need;if(mouse.target.t>=need){world[ty][tx]=0;if(gameMode==="survival"){addItem(id,1);if(id===5&&Math.random()<.18)addItem(11,1);notify(`拾取：${items[id].name}`)}else notify(`移除：${items[id].name}`);mouse.target=null}}
+function inReach(tx,ty){return Math.hypot((tx+.5)*TILE-(player.x+player.w/2),(ty+.5)*TILE-(player.y+player.h/2))<TILE*5}
+function attack(){player.swing=.32;const sword=activeStack()?.id;if(![12,16].includes(sword)){notify('先在快捷列選擇一把劍');return}const i=mobs.findIndex(m=>Math.abs(m.x-player.x)<62&&Math.abs(m.y-player.y)<48);if(i>=0){mobs.splice(i,1);addItem(6,1);notify('擊敗史萊姆！拾取煤炭')}else notify('揮劍！附近沒有怪物')}
+function dropSelected(){const i=HOTBAR_START+selected,s=inv[i];if(!s)return;drops.push({id:s.id,n:1,x:player.x+player.w/2,y:player.y+8,vx:player.facing*150,vy:-120,got:false,age:0});s.n--;if(s.n<=0)inv[i]=null;renderHotbar();notify(`丟出：${items[drops[drops.length-1].id].name}`)}
+function interact(button,x,y){const tx=Math.floor((x+camX)/TILE),ty=Math.floor((y+camY)/TILE);if(tx<0||tx>=WORLD_W||ty<0||ty>=WORLD_H||!inReach(tx,ty)){notify('太遠了，無法操作');return}if(button===2){const existing=tileAt(tx,ty);if(existing===13){openInventory(3);return}const s=activeStack();if(!s||!items[s.id]?.block){notify('快捷列目前沒有可放置的方塊');return}if(existing!==0){notify('此處已有方塊');return}const bx=tx*TILE,by=ty*TILE;if(bx<player.x+player.w&&bx+TILE>player.x&&by<player.y+player.h&&by+TILE>player.y){notify('不能把方塊放在自己身上');return}world[ty][tx]=s.id;if(gameMode==="survival"){s.n--;if(s.n<=0)inv[HOTBAR_START+selected]=null;renderHotbar()}notify(`放置：${items[world[ty][tx]].name}`)}}
+function drawBlock(id,x,y,alpha=1){if(!id)return;ctx.save();ctx.globalAlpha*=alpha;const px=x*TILE-camX,py=y*TILE-camY;const colors={1:['#64ad3c','#42812c'],2:['#98623c','#69432d'],3:['#929aa3','#636b75'],4:['#97603a','#68432a'],5:['#438e3b','#2e6b30'],6:['#737b85','#343b44'],7:['#bd8951','#895c34'],8:['#81603b','#e5b940'],9:['#929aa3','#d07b52'],13:['#9a6840','#513a2a']};const p=colors[id]||colors[3];ctx.fillStyle=p[0];ctx.fillRect(px,py,TILE,TILE);ctx.fillStyle=p[1];if(id===1){ctx.fillRect(px,py,TILE,7);ctx.fillRect(px,py+7,TILE,2)}else if(id===4){ctx.fillRect(px+7,py,4,TILE);ctx.fillRect(px+22,py,3,TILE)}else if(id===5){ctx.fillRect(px+4,py+5,7,5);ctx.fillRect(px+19,py+17,8,5);ctx.fillRect(px+8,py+23,5,5)}else if(id===6||id===9){ctx.fillRect(px+5,py+8,7,6);ctx.fillRect(px+19,py+20,8,6);ctx.fillRect(px+20,py+4,4,4)}else if(id===8){ctx.fillStyle='#70472c';ctx.fillRect(px+15,py+12,4,18);ctx.fillStyle='#ffd75d';ctx.fillRect(px+12,py+3,10,11);ctx.fillStyle='#fff3a0';ctx.fillRect(px+15,py+5,4,6)}else if(id===13){ctx.fillRect(px+3,py+5,26,5);ctx.fillRect(px+5,py+10,4,22);ctx.fillRect(px+23,py+10,4,22);ctx.fillStyle='#d5ad75';ctx.fillRect(px+11,py+13,10,8)}else{ctx.fillRect(px+4,py+9,5,4);ctx.fillRect(px+20,py+21,7,4);ctx.fillRect(px+14,py+4,3,3)}ctx.strokeStyle='#18232a55';ctx.strokeRect(px+.5,py+.5,TILE-1,TILE-1);ctx.restore()}
+function render(){const w=canvas.clientWidth,h=canvas.clientHeight,phase=(worldTime%180)/180,dayLight=Math.max(0,(Math.sin(phase*Math.PI*2-Math.PI/2)+1)/2);let grad=ctx.createLinearGradient(0,0,0,h);grad.addColorStop(0,`rgb(${Math.floor(12+100*dayLight)},${Math.floor(18+160*dayLight)},${Math.floor(38+190*dayLight)})`);grad.addColorStop(1,`rgb(${Math.floor(20+170*dayLight)},${Math.floor(25+175*dayLight)},${Math.floor(45+180*dayLight)})`);ctx.fillStyle=grad;ctx.fillRect(0,0,w,h);
+ ctx.fillStyle=dayLight>.35?'#ffe88a':'#dce7ff';ctx.beginPath();ctx.arc(w*.82-camX*.015,72,24,0,Math.PI*2);ctx.fill();if(dayLight>.12)for(let i=0;i<5;i++){const cx=((i*210-camX*.18)%(w+220)+w+220)%(w+220)-50,cy=45+(i%3)*45;ctx.fillStyle='#ffffff99';ctx.beginPath();ctx.ellipse(cx,cy,28,9,0,0,Math.PI*2);ctx.ellipse(cx+17,cy-7,18,12,0,0,Math.PI*2);ctx.ellipse(cx+34,cy,22,8,0,0,Math.PI*2);ctx.fill()}
+ const sx=Math.max(0,Math.floor(camX/TILE)),ex=Math.min(WORLD_W,Math.ceil((camX+w)/TILE)+1),sy=Math.max(0,Math.floor(camY/TILE)),ey=Math.min(WORLD_H,Math.ceil((camY+h)/TILE)+1),pcx=(player.x+player.w/2)/TILE,pcy=(player.y+player.h/2)/TILE;for(let y=sy;y<ey;y++)for(let x=sx;x<ex;x++){const dist=Math.hypot(x+.5-pcx,y+.5-pcy),alpha=dist<2.8?.28+.72*Math.max(0,Math.min(1,(dist-.9)/1.9)):1;drawBlock(world[y][x],x,y,alpha)}
+ for(const d of drops){const x=d.x-camX,y=d.y-camY;ctx.fillStyle='#ffd86a';ctx.fillRect(x,y,14,14);ctx.font='14px sans-serif';ctx.fillText(items[d.id].icon,x,y+13)}
+ for(const m of mobs){const x=m.x-camX,y=m.y-camY;ctx.fillStyle=m.hit>0?'#dcffff':'#56d878';ctx.fillRect(x+2,y+4,m.w-4,m.h-4);ctx.fillRect(x+6,y+1,13,7);ctx.fillStyle='#153f28';ctx.fillRect(x+6,y+9,4,5);ctx.fillRect(x+17,y+9,4,5);ctx.fillRect(x+8,y+18,5,4);ctx.fillRect(x+17,y+18,5,4)}
+ const px=player.x-camX,py=player.y-camY;ctx.fillStyle='#f2c29b';ctx.fillRect(px+4,py,14,12);ctx.fillStyle='#4b3025';ctx.fillRect(px+2,py-2,17,5);ctx.fillStyle='#3681d2';ctx.fillRect(px+2,py+12,17,10);ctx.fillStyle='#e7eef5';ctx.fillRect(px+3,py+22,6,7);ctx.fillRect(px+12,py+22,6,7);ctx.fillStyle='#18242e';ctx.fillRect(px+(player.facing>0?13:5),py+4,3,3);
+ const held=activeStack();if(held&&[8,12,16,14,15,17].includes(held.id)){ctx.save();const handX=px+(player.facing>0?19:2),handY=py+17;ctx.translate(handX,handY);if(player.swing>0&&[12,16].includes(held.id)){ctx.rotate((.32-player.swing)/.32*(player.facing>0?1.8:-1.8)-.8)}ctx.font='22px sans-serif';ctx.fillText(items[held.id].icon,0,0);ctx.restore()}
+ const tx=Math.floor((mouse.x+camX)/TILE),ty=Math.floor((mouse.y+camY)/TILE);if(tx>=0&&tx<WORLD_W&&ty>=0&&ty<WORLD_H){ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.strokeRect(tx*TILE-camX+2,ty*TILE-camY+2,TILE-4,TILE-4);if(mouse.target&&mouse.target.x===tx&&mouse.target.y===ty){ctx.fillStyle='#1118';ctx.fillRect(tx*TILE-camX,ty*TILE-camY,TILE,TILE);ctx.fillStyle='#ffe276';ctx.fillRect(tx*TILE-camX,ty*TILE-camY+TILE-4,TILE*Math.min(1,mouse.target.t/mouse.target.need),4)}}}
+function saveGame(){try{localStorage.setItem('blockWorldSaveV2',JSON.stringify({world,inv,craftGrid,cursorStack,craftMode,drops,player:{x:player.x,y:player.y,hp:player.hp,food:player.food},worldTime,gameMode,terrainType}));notify('世界、背包與合成進度已儲存')}catch(e){notify('儲存失敗：瀏覽器可能限制本機儲存')}}
+function loadGame(){try{const d=JSON.parse(localStorage.getItem('blockWorldSaveV2'));if(d?.world?.length===WORLD_H&&d.inv?.length===SLOT_COUNT){world=d.world;inv=d.inv.map(s=>s&&items[s.id]?{id:Number(s.id),n:Math.max(1,Math.min(64,Number(s.n)||1))}:null);craftGrid=Array.isArray(d.craftGrid)&&d.craftGrid.length===9?d.craftGrid.map(s=>s&&items[s.id]?{id:Number(s.id),n:Math.max(1,Math.min(64,Number(s.n)||1))}:null):Array(9).fill(null);cursorStack=d.cursorStack&&items[d.cursorStack.id]?{id:Number(d.cursorStack.id),n:Math.max(1,Math.min(64,Number(d.cursorStack.n)||1))}:null;craftMode=d.craftMode===3?3:2;drops=Array.isArray(d.drops)?d.drops:[];Object.assign(player,d.player);worldTime=d.worldTime||45;gameMode=d.gameMode==='creative'?'creative':'survival';terrainType=d.terrainType==='flat'?'flat':'random';return true}}catch(e){}return false}
+function hasSavedGame(){try{return !!localStorage.getItem('blockWorldSaveV2')}catch(e){return false}}
+function updateStartChoices(){document.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('selected',b.dataset.mode===gameMode));document.querySelectorAll('[data-terrain]').forEach(b=>b.classList.toggle('selected',b.dataset.terrain===terrainType))}
+function showModeUI(){ $('modeBadge').textContent=gameMode==='creative'?'創造':'生存';$('hpPill').style.display=gameMode==='creative'?'none':'';$('food').parentElement.style.display=gameMode==='creative'?'none':'';$('hint').innerHTML=gameMode==='creative'?'<b>⛏️ 創造模式</b><br>A／D 或方向鍵移動<br>Space／W／↑ 上升　Shift／S／↓ 下降<br>左鍵移除方塊　右鍵放置（不消耗）<br>1～9／滾輪切換　E 背包　Q 丟棄<br>方塊與工具可從創造背包取得':'<b>⛏️ 生存模式</b><br>WASD／方向鍵移動　Space 跳躍<br>左鍵按住挖掘／持劍揮砍　右鍵放置<br>1～9／滾輪切換　E 背包　Q 丟棄<br>放置工作台後右鍵開啟 3×3 合成'}
+function beginGame(){generateWorld();craftGrid=Array(9).fill(null);cursorStack=null;selected=0;inv=gameMode==='creative'?makeCreativeInventory():Array.from({length:SLOT_COUNT},()=>null);gameStarted=true;$('startScreen').style.display='none';showModeUI();renderHotbar();setCraftMode(2)}
+function continueGame(){if(!loadGame()){notify('找不到可讀取的存檔');return}gameStarted=true;$('startScreen').style.display='none';showModeUI();renderHotbar();setCraftMode(craftMode);if(cursorStack||craftGrid.some(Boolean))openInventory(craftMode)}
+document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{gameMode=b.dataset.mode;updateStartChoices()});document.querySelectorAll('[data-terrain]').forEach(b=>b.onclick=()=>{terrainType=b.dataset.terrain;updateStartChoices()});$('startNewBtn').onclick=beginGame;$('continueBtn').onclick=continueGame;
+$('continueBtn').hidden=!hasSavedGame();$('saveBtn').onclick=saveGame;$('resetBtn').onclick=()=>{if(confirm('重新生成目前模式與地形的新世界？')){generateWorld();inv=gameMode==='creative'?makeCreativeInventory():Array.from({length:SLOT_COUNT},()=>null);craftGrid=Array(9).fill(null);cursorStack=null;renderHotbar();notify('新世界已生成')}};
+function updatePointerPosition(e){const r=canvas.getBoundingClientRect();mouse.x=e.clientX-r.left;mouse.y=e.clientY-r.top}
+canvas.addEventListener('pointermove',updatePointerPosition);
+canvas.addEventListener('pointerdown',e=>{e.preventDefault();updatePointerPosition(e);try{canvas.setPointerCapture(e.pointerId)}catch(_){}if(e.button===0){if([12,16].includes(activeStack()?.id)){attack();return}mouse.down=true;mouse.timer=0;mineTick(.08)}else if(e.button===2)interact(2,mouse.x,mouse.y)});
+function stopMining(e){if(e.button===0)mouse.down=false}
+canvas.addEventListener('pointerup',stopMining);canvas.addEventListener('pointercancel',stopMining);canvas.addEventListener('lostpointercapture',stopMining);
+canvas.addEventListener('contextmenu',e=>e.preventDefault());canvas.addEventListener('wheel',e=>{e.preventDefault();selected=(selected+(e.deltaY>0?1:8))%9;renderHotbar()},{passive:false});
+window.addEventListener('keydown',e=>{if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();if(e.code==='Escape'&&$('inventoryPanel').classList.contains('open')){closeInventory();return}if(e.code==='KeyE'&&!e.repeat){if($('inventoryPanel').classList.contains('open'))closeInventory();else openInventory(2);return}if($('inventoryPanel').classList.contains('open'))return;keys[e.code]=true;if(gameMode==='survival'&&['Space','ArrowUp','KeyW'].includes(e.code)&&!e.repeat&&player.onGround){player.vy=-355;player.onGround=false}if(/^Digit[1-9]$/.test(e.code)){selected=Number(e.code.slice(-1))-1;renderHotbar()}if(e.code==='KeyQ'&&!e.repeat)dropSelected()});window.addEventListener('keyup',e=>keys[e.code]=false);
+function mobileHold(id,code){const el=$(id);el.addEventListener('pointerdown',e=>{e.preventDefault();keys[code]=true;el.setPointerCapture(e.pointerId)});['pointerup','pointercancel','lostpointercapture'].forEach(ev=>el.addEventListener(ev,()=>keys[code]=false))}mobileHold('leftBtn','KeyA');mobileHold('rightBtn','KeyD');$('jumpBtn').addEventListener('pointerdown',e=>{e.preventDefault();if(gameMode==='creative'){keys.Space=true;setTimeout(()=>keys.Space=false,180)}else if(player.onGround){player.vy=-355;player.onGround=false}});
+generateWorld();renderHotbar();setCraftMode(2);updateStartChoices();requestAnimationFrame(function loop(t){const dt=Math.min((t-last)/1000||0,.04);last=t;if(gameStarted){update(dt);render()}else{ctx.fillStyle='#18232d';ctx.fillRect(0,0,canvas.clientWidth,canvas.clientHeight)}requestAnimationFrame(loop)});
+})();
+</script>
+</body>
+</html>
